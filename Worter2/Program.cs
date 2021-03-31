@@ -11,7 +11,7 @@ namespace Worter2
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Hallo Liebe Worter !\n");
             string targetFilePath = "english.txt";
             FileStream readFileStream = new FileStream(targetFilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
             StreamReader streamReader = new StreamReader(readFileStream);
@@ -27,9 +27,9 @@ namespace Worter2
             string fileContent = streamReader.ReadToEnd();
             //List<Words> lines = new List<Words>();
             List<Words> words = new List<Words>();
-
+            List<Type> types = new List<Type>();
             //Console.Write(fileContent);
-            
+
             string[] resultLines = SplitLines(fileContent);
 
             Console.WriteLine("\n---Lecture ligne par ligne---");
@@ -38,6 +38,10 @@ namespace Worter2
             Parallel.ForEach(resultLinesList, line =>
             {
                 Console.WriteLine($"ligne: {j += 1} " + line.ToString());
+                String myString = "";
+                byte[] bytes = Encoding.Default.GetBytes(line.ToString());
+                myString = Encoding.UTF8.GetString(bytes);
+                Console.WriteLine("en UTF8 : " + myString);
             });
 
             Console.WriteLine("\n---Ecriture dans la List words---");
@@ -45,19 +49,43 @@ namespace Worter2
             {
                 foreach(var line in resultLines)
                  {
-                     string[] entries = line.Split(',');
-                     Words newWords = new Words();
+                    string[] entries = line.Split(',');
+                    //Convert To UTF-8
+                    String entry0 = "";
+                    byte[] bytes = Encoding.Default.GetBytes(entries[0]);
+                    entry0 = Encoding.UTF8.GetString(bytes);
+                    String entry1 = "";
+                    byte[] bytes1 = Encoding.Default.GetBytes(entries[1]);
+                    entry1 = Encoding.UTF8.GetString(bytes1);
+                    String entry2 = "";
+                    byte[] bytes2 = Encoding.Default.GetBytes(entries[2]);
+                    entry2 = Encoding.UTF8.GetString(bytes2);
+                    Words newWords = new Words();
+                    Type type = new Type();
+                    if (entries[3].StartsWith("[word")) 
+                    {
+                        type.type = "word";
+                    }
+                    else
+                    {
+                        type.type = "sentence";
+                    }
                     //Console.WriteLine(entries[0] + entries[1] + entries[2]);
-                    newWords.English = entries[0];
-                     newWords.Deutsch = entries[1];
-                     newWords.Francais = entries[2];
-                     words.Add(newWords);
+                    newWords.English = entry0;
+                    newWords.Deutsch = entry1;
+                    newWords.Francais = entry2;
+                    words.Add(newWords);
+                    types.Add(type);
                  }
                 Console.WriteLine("\n---Lecture Mots par Mots(ou phrase) à partir de words---");
                 Parallel.ForEach(words, word =>
                 {
-                    Console.WriteLine(" " + word.English + " " + word.Deutsch + " " + word.Francais);
+                    Console.WriteLine(" " + word.English + " " + word.Deutsch + " " + word.Francais);                    
                 });
+                foreach(var type in types)
+                {
+                    Console.WriteLine("\n " + type.type);
+                }
             }
             catch (Exception ex)
             {
@@ -72,7 +100,15 @@ namespace Worter2
 
             foreach (var word in words)
             {
-                db.AddWords(word);
+                db.AddWords(word);                             
+            }
+            int count = 0;
+            foreach (var type in types)
+            {
+                //Incrémenter le nombre d'entrées                
+                count++;
+                //Console.WriteLine(count.ToString());
+                db.AddType(type,count);
             }
 
             //for (int i = 0; i < resultLines.Length; i++)

@@ -9,6 +9,6 @@ namespace Worter2
         public string English { get; set; }
         public string Deutsch { get; set; }
         public string Francais { get; set; }
-
+                
     }
 }
