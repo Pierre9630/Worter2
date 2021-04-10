@@ -16,6 +16,12 @@ namespace Worter2
             FileStream readFileStream = new FileStream(targetFilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
             StreamReader streamReader = new StreamReader(readFileStream);
 
+
+            Console.WriteLine("\n---Instanciation de la base de données---");
+            Database db = new Database();
+
+            int count = db.CountID();
+            
             // Nous pouvons utiliser ReadToEnd qui lira de notre position courante jusqu'à la fin du fichier puis nous
             // retourne une chaîne de caractères.
             Console.WriteLine("---Lecture avec ReadToEnd---\n");
@@ -35,14 +41,14 @@ namespace Worter2
             Console.WriteLine("\n---Lecture ligne par ligne---");
             List<string> resultLinesList = resultLines.OfType<string>().ToList();
             int j = 0;
-            Parallel.ForEach(resultLinesList, line =>
+            foreach(var line in resultLinesList)
             {
                 Console.WriteLine($"ligne: {j += 1} " + line.ToString());
                 String myString = "";
                 byte[] bytes = Encoding.Default.GetBytes(line.ToString());
                 myString = Encoding.UTF8.GetString(bytes);
                 Console.WriteLine("en UTF8 : " + myString);
-            });
+            }
 
             Console.WriteLine("\n---Ecriture dans la List words---");
             try
@@ -77,32 +83,40 @@ namespace Worter2
                     words.Add(newWords);
                     types.Add(type);
                  }
+                Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine("\n---Lecture Mots par Mots(ou phrase) à partir de words---");
-                Parallel.ForEach(words, word =>
+                Console.WriteLine("\n{0,-10} {1,-10} {2,-10}", "English", "Deutsch", "Français" );
+                Console.WriteLine("------------------------------------------------------------------");
+                foreach(var word in words)
                 {
-                    Console.WriteLine(" " + word.English + " " + word.Deutsch + " " + word.Francais);                    
-                });
+                    
+                    Console.WriteLine("\n{0,-10} {1,-10} {2,-10}", word.English, word.Deutsch, word.Francais);                    
+                }
                 foreach(var type in types)
                 {
                     Console.WriteLine("\n " + type.type);
                 }
+                Console.WriteLine("\n------------------------------------------------------------------\n");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Supprimez les retours à la ligne ! /n" + ex.StackTrace.ToString());
+                Console.WriteLine("Supprimez les retours à la ligne ! \n" + ex.StackTrace.ToString());
                 
             }
-            Console.WriteLine("\n---Instanciation de la base de données---");
-            Database db = new Database();
-                   
-           
+            //Lecture avant ajout
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("---Lecture de la Base de Données---\n");
+            
+            Console.WriteLine("---Nombre entrées dans la base---\n" + count.ToString());
+            //db.HasRows();
+
             Console.WriteLine("\n---Ajout dans la base de données---");
 
             foreach (var word in words)
             {
                 db.AddWords(word);                             
             }
-            int count = 0;
+            
             foreach (var type in types)
             {
                 //Incrémenter le nombre d'entrées                
