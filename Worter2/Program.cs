@@ -4,6 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace Worter2
 {
@@ -12,24 +13,41 @@ namespace Worter2
         static void Main(string[] args)
         {
             Console.WriteLine("Hallo Liebe Worter !\n");
+            
+            
             string targetFilePath = "english.txt";
             FileStream readFileStream = new FileStream(targetFilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
-            StreamReader streamReader = new StreamReader(readFileStream);
+            StreamReader streamReader = new StreamReader(readFileStream);                
 
-
+            //System.Environment.Exit(0);
             Console.WriteLine("\n---Instanciation de la base de données---");
             Database db = new Database();
+            Console.WriteLine("Mot de passe BDD ?\n");
+            string bdd = Console.ReadLine();
+            db.InitConnexion(bdd);
+            Console.WriteLine("Lancer le programme test ?");
+            string rep = Console.ReadLine();
+            if(rep.StartsWith("y",StringComparison.CurrentCultureIgnoreCase) || rep.StartsWith("o",StringComparison.CurrentCultureIgnoreCase))
+            {
+                
+                Test test = new Test();
+                Task thread = Task.Factory.StartNew(() => test.TestProgram());
+                Task.WaitAll(thread);
+            }
+            List<Words> compare = new List<Words>();
+
+            db.HasRows(compare);
 
             int count = db.CountID();
-            
+
             // Nous pouvons utiliser ReadToEnd qui lira de notre position courante jusqu'à la fin du fichier puis nous
             // retourne une chaîne de caractères.
             Console.WriteLine("---Lecture avec ReadToEnd---\n");
-            for(int i = 0;i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 streamReader.ReadLine();
             }
-            
+
             string fileContent = streamReader.ReadToEnd();
             //List<Words> lines = new List<Words>();
             List<Words> words = new List<Words>();
@@ -41,7 +59,7 @@ namespace Worter2
             Console.WriteLine("\n---Lecture ligne par ligne---");
             List<string> resultLinesList = resultLines.OfType<string>().ToList();
             int j = 0;
-            foreach(var line in resultLinesList)
+            foreach (var line in resultLinesList)
             {
                 Console.WriteLine($"ligne: {j += 1} " + line.ToString());
                 String myString = "";
@@ -53,8 +71,8 @@ namespace Worter2
             Console.WriteLine("\n---Ecriture dans la List words---");
             try
             {
-                foreach(var line in resultLines)
-                 {
+                foreach (var line in resultLines)
+                {
                     string[] entries = line.Split(',');
                     //Convert To UTF-8
                     String entry0 = "";
@@ -68,7 +86,7 @@ namespace Worter2
                     entry2 = Encoding.UTF8.GetString(bytes2);
                     Words newWords = new Words();
                     Type type = new Type();
-                    if (entries[3].StartsWith("[word")) 
+                    if (entries[3].StartsWith("[word"))
                     {
                         type.type = "word";
                     }
@@ -82,17 +100,60 @@ namespace Worter2
                     newWords.Francais = entry2;
                     words.Add(newWords);
                     types.Add(type);
-                 }
+                }
+                Console.WriteLine("\n---Comparaison entre Base de données et données rentrées---");
+                Words NewWords = new Words();
+                List<Words> NewWordsList = new List<Words>();
+                if ((compare != null) && (compare.Any())) {
+
+                    var resultCompare = words.Except(compare);
+                    //var resultCompareDeutsch = words.Where(p => compare.All(p3 => p3.Deutsch != p.Deutsch));
+                    //var resultCompareFrancais = words.Where(p => compare.All(p4 => p4.Francais != p.Francais));
+
+                    //NewWords.English = resultCompareEnglish.ToString();
+                    //NewWords.Deutsch = resultCompareDeutsch.ToString();
+                    //NewWords.Francais = resultCompareFrancais.ToString();
+                    //NewWordsList.Add(NewWords);
+
+
+                }
+
+                foreach (var word in NewWordsList)
+                {
+                    Console.WriteLine(word.English.ToString());
+                }
+
+
+                //if (compare.OrderBy(m => m).SequenceEqual(words.OrderBy(m => m)))
+                //{
+                //    Console.WriteLine("Mots déjà rentrées dans la base !");
+                //    Console.ReadKey();
+                //    System.Environment.Exit(-1);
+
+                //}
+                //else if (!compare.Any())
+                //{
+                //    Console.WriteLine("Not Equal list");
+                //    System.Collections.IEnumerator ListAEnum = words.GetEnumerator();
+                //    System.Collections.IEnumerator ListBEnum = compare.GetEnumerator();
+
+                //    Compare cmp = new Compare();
+                //    List<Words> words1 = new List<Words>();
+                //    //words1 = cmp.CompareWords(ListAEnum, ListBEnum);
+                //}
+
+
+
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine("\n---Lecture Mots par Mots(ou phrase) à partir de words---");
-                Console.WriteLine("\n{0,-10} {1,-10} {2,-10}", "English", "Deutsch", "Français" );
+                Console.WriteLine("\n{0,-10} {1,-10} {2,-10}", "English", "Deutsch", "Français");
                 Console.WriteLine("------------------------------------------------------------------");
-                foreach(var word in words)
+                foreach (var word in words)
                 {
-                    
-                    Console.WriteLine("\n{0,-10} {1,-10} {2,-10}", word.English, word.Deutsch, word.Francais);                    
+
+                    Console.WriteLine("\n{0,-10} {1,-10} {2,-10}", word.English, word.Deutsch, word.Francais);
                 }
-                foreach(var type in types)
+                foreach (var type in types)
                 {
                     Console.WriteLine("\n " + type.type);
                 }
@@ -101,12 +162,12 @@ namespace Worter2
             catch (Exception ex)
             {
                 Console.WriteLine("Supprimez les retours à la ligne ! \n" + ex.StackTrace.ToString());
-                
+
             }
             //Lecture avant ajout
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("---Lecture de la Base de Données---\n");
-            
+
             Console.WriteLine("---Nombre entrées dans la base---\n" + count.ToString());
             //db.HasRows();
 
@@ -114,15 +175,15 @@ namespace Worter2
 
             foreach (var word in words)
             {
-                db.AddWords(word);                             
+                db.AddWords(word);
             }
-            
+
             foreach (var type in types)
             {
                 //Incrémenter le nombre d'entrées                
                 count++;
                 //Console.WriteLine(count.ToString());
-                db.AddType(type,count);
+                db.AddType(type, count);
             }
 
             //for (int i = 0; i < resultLines.Length; i++)
@@ -130,6 +191,33 @@ namespace Worter2
 
             //    //Console.WriteLine($"ligne: {i} " + result[i]);
             //}
+
+
+            Console.WriteLine("Voulez-vous rajouter des phrases dans la base ?");
+            while (Console.ReadLine().Equals("O", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Console.WriteLine("Indiquez le nom du fichier sans l'extension(à mettre dans le dossier courant)");
+                string file = Console.ReadLine();
+                string targetFilePath2 = file + ".txt";
+                FileStream readFileStream2 = new FileStream(targetFilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
+                StreamReader streamReader2 = new StreamReader(readFileStream);
+
+                Console.WriteLine("Copie du contenu de " + file + ".txt dans la base phrases");
+
+            }
+            
+            //Console.WriteLine("Combien de lignes voulez-vous rajouter ?");
+            //int nblines = short.Parse(Console.ReadLine());
+            //int nb = 0;
+            //string[] outputtab = new string[nblines];
+            //while(nb < nblines)
+            //{
+            //    string output = Console.ReadLine();
+            //    outputtab.Append(output);
+            //}
+            //Composants.FileOperation f = new Composants.FileOperation();
+            //f.TestOutput(outputtab);
+
 
             // Fermeture du StreamReader et, comme avec le StreamWriter, du FileStream associé.
             streamReader.Close();
@@ -154,8 +242,6 @@ namespace Worter2
             
 
             return word;
-        }
-        
-
+        } 
     }
 }

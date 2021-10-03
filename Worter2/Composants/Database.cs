@@ -5,6 +5,7 @@ using MySql.Data;
 using MySql.Web;
 using MySql.Data.EntityFramework;
 using MySql.Data.MySqlClient;
+using System.Runtime.InteropServices;
 
 namespace Worter2
 {
@@ -21,11 +22,17 @@ namespace Worter2
         }
 
         // Méthode pour initialiser la connexion
-        private void InitConnexion()
+        public void InitConnexion([Optional] string mpsroot)
         {
-                        
-            string connectionString = "Server=192.168.1.42;Database=Langues;Uid=root;Pwd=test44;";
-            this.connection = new MySqlConnection(connectionString);
+            try
+            {
+                string connectionString = "Server=192.168.1.42;Database=Langues;Uid=root;Pwd=" + mpsroot + ";";
+                this.connection = new MySqlConnection(connectionString);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         //Nombre Affichages de Connexions limités à 1
@@ -137,7 +144,7 @@ namespace Worter2
             using (connection)
             {
                 MySqlCommand command = new MySqlCommand(
-                  "SELECT ID FROM Vocabulaire;",
+                  "SELECT * FROM Vocabulaire;",
                   connection);
                 connection.Open();
 
@@ -247,5 +254,103 @@ namespace Worter2
                 Console.WriteLine("\n---Base non connecté !---" + ex.Message);
             }
         }
+        public void AddPhrase(Phrases Phrase, [Optional] Words Word, [Optional] Words Word2, [Optional] Words Word3)
+        {
+            try
+            {
+                // Ouverture de la connexion SQL
+                if (countcon == false)
+                {
+                    Console.WriteLine("\n---Connection à la base de données---");
+                    countcon = true;
+                }
+
+                this.connection.Open();
+
+                // Création d'une commande SQL en fonction de l'objet connection
+                MySql.Data.MySqlClient.MySqlCommand cmd = this.connection.CreateCommand();
+
+                // Requête SQL
+                cmd.CommandText = "INSERT INTO Phrases (Phrase,Word1,Word2,Word3 ) VALUES (@Phrase,@Word,@Word2,@Word3)";
+
+                // utilisation de l'objet contact passé en paramètre
+                //cmd.Parameters.AddWithValue("@type", type.type);
+                cmd.Parameters.AddWithValue("@Phrase", Phrase);
+                
+                //Si word est défini dans les parametres
+                if (!Word.Equals(null))
+                {
+                    cmd.Parameters.AddWithValue("@Word", Word);
+                }
+                else
+                {
+                    Console.WriteLine("Word is null");
+                }
+
+                // Exécution de la commande SQL
+                cmd.ExecuteNonQuery();
+
+                // Fermeture de la connexion
+                if (countend == false)
+                {
+                    Console.WriteLine("\n---Mots Ajoutées à la base---");
+                    countend = true;
+                }
+                this.connection.Close();
+            }
+            catch (Exception ex)
+            {
+                // Gestion des erreurs :
+                // Possibilité de créer un Logger pour les exceptions SQL reçus
+                // Possibilité de créer une méthode avec un booléan en retour pour savoir si le contact à été ajouté correctement.
+                Console.WriteLine("\n---Base non connecté !---" + ex.Message);
+
+
+            }
+        }
+        public void DeleteRows()
+        {
+            try
+            {
+
+                // Ouverture de la connexion SQL
+
+                if (countcon == false)
+                {
+                    Console.WriteLine("\n---Connection à la base de données---");
+                    countcon = true;
+                }
+                this.connection.Open();
+
+                // Création d'une commande SQL en fonction de l'objet connection
+                MySql.Data.MySqlClient.MySqlCommand cmd = this.connection.CreateCommand();
+
+                // Requête SQL
+                cmd.CommandText = "DELETE ALL ROWS FROM Vocabulaire;";
+                         
+                       
+
+                // Exécution de la commande SQL
+                cmd.ExecuteNonQuery();
+
+                // Fermeture de la connexion
+                if (countend == false)
+                {
+                    Console.WriteLine("\n---Suppression---");
+                    countend = true;
+                }
+                this.connection.Close();
+            }
+            catch (Exception ex)
+            {
+                // Gestion des erreurs :
+                // Possibilité de créer un Logger pour les exceptions SQL reçus
+                // Possibilité de créer une méthode avec un booléan en retour pour savoir si le contact à été ajouté correctement.
+                Console.WriteLine("\n---Base non connecté !---" + ex.Message);
+
+
+            }
+        }
     }
+    
 }
