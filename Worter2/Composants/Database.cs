@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Security;
 using MySql.Data;
 using MySql.Web;
 using MySql.Data.EntityFramework;
@@ -22,12 +23,20 @@ namespace Worter2
         }
 
         // Méthode pour initialiser la connexion
-        public void InitConnexion([Optional] string mpsroot)
+        public void InitConnexion([Optional] SecureString mpsroot)
         {
             try
             {
-                string connectionString = "Server=192.168.1.42;Database=Langues;Uid=root;Pwd=" + mpsroot + ";";
-                this.connection = new MySqlConnection(connectionString);
+                if(mpsroot.GetString().Length > 0)
+                {
+                    
+                    
+                    Console.WriteLine("TEST " + mpsroot.GetString());
+                    string connectionString = "Server=192.168.1.42;Database=Langues;Uid=root;Pwd=" + mpsroot.GetString() + ";";
+                    this.connection = new MySqlConnection(connectionString);
+                }
+                Console.WriteLine("Init");
+                
             }
             catch(Exception ex)
             {
@@ -35,68 +44,79 @@ namespace Worter2
             }
         }
 
+        public void CloseConnexion()
+        {
+            this.connection.Close();
+        }
+
         //Nombre Affichages de Connexions limités à 1
         bool countcon = false;
         bool countend = false;
 
-        //public bool ReadWords(List<Words>query,List<Words> reads, List<Type> readstype, List<ID> id)
-        //{
-        //    try
-        //    {
-        //        this.connection.Open();
+        public bool ReadWords(List<Words> query, List<Words> reads, List<Type> readstype, List<ID> id)
+        {
+            try
+            {
+                this.connection.Open();
 
 
-        //        // Création d'une commande SQL en fonction de l'objet connection
-        //        MySql.Data.MySqlClient.MySqlCommand cmd = this.connection.CreateCommand();
+                // Création d'une commande SQL en fonction de l'objet connection
+                MySql.Data.MySqlClient.MySqlCommand cmd = this.connection.CreateCommand();
 
-        //        // Requête SQL
-        //        cmd.CommandText = "SELECT * FROM Vocabulaire";
-        //        MySql.Data.MySqlClient.MySqlDataReader dataReader = cmd.ExecuteReader();
-        //        // Exécution de la commande SQL
-        //        //cmd.ExecuteNonQuery();
-        //        //Read the data and store them in the list
-        //        while (dataReader.Read())
-        //        {
-        //            reads.Add(new Words
-        //            {
-        //                English = dataReader["English"].ToString(),
-        //                Deutsch = dataReader["Deutsch"].ToString(),
-        //                Francais = dataReader["Francais"].ToString()
-        //            });
-        //            Console.WriteLine(dataReader["English"].ToString());
-        //        }
+                // Requête SQL
+                cmd.CommandText = "SELECT * FROM Vocabulaire WHERE ID = @id OR English  = @en OR Deutsch = @de OR Francais = @fr";
+                MySql.Data.MySqlClient.MySqlDataReader dataReader = cmd.ExecuteReader();
 
-        //        while (dataReader.Read())
-        //        {
-        //            readstype.Add(new Type
-        //            {
-        //                type = dataReader["Type"].ToString()
-        //            });
-        //        }
-        //        while (dataReader.Read())
-        //        {
-        //            id.Add(new ID
-        //            {
-        //                id = Convert.ToInt32(dataReader["ID"].ToString())
-        //            });
-        //        }
+                //cmd.Parameters.AddWithValue("@id", word.English);
+                //cmd.Parameters.AddWithValue("@en", word.English);
+                //cmd.Parameters.AddWithValue("@de", word.Deutsch);
+                //cmd.Parameters.AddWithValue("@fr", word.Francais);
 
-        //        //close Data Reader
-        //        dataReader.Close();
+                // Exécution de la commande SQL
+                //cmd.ExecuteNonQuery();
+                //Read the data and store them in the list
+                while (dataReader.Read())
+                {
+                    reads.Add(new Words
+                    {
+                        English = dataReader["English"].ToString(),
+                        Deutsch = dataReader["Deutsch"].ToString(),
+                        Francais = dataReader["Francais"].ToString()
+                    });
+                    Console.WriteLine(dataReader["English"].ToString());
+                }
+
+                while (dataReader.Read())
+                {
+                    readstype.Add(new Type
+                    {
+                        type = dataReader["Type"].ToString()
+                    });
+                }
+                while (dataReader.Read())
+                {
+                    id.Add(new ID
+                    {
+                        id = Convert.ToInt32(dataReader["ID"].ToString())
+                    });
+                }
+
+                //close Data Reader
+                dataReader.Close();
 
 
-        //        // Fermeture de la connexion
-        //        this.connection.Close();
-        //        Console.WriteLine("---Mots déjà présents !---\n");
-        //        return false;
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        Console.WriteLine("---Problème lors de la requete SELECT !---\n" + ex);
-        //        return true;
-        //    }
+                // Fermeture de la connexion
+                this.connection.Close();
+                Console.WriteLine("---Mots déjà présents !---\n");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("---Problème lors de la requete SELECT !---\n" + ex);
+                return true;
+            }
 
-        //}      
+        }
 
         // Méthode pour ajouter un contact
         public int CountID()
@@ -326,9 +346,8 @@ namespace Worter2
                 MySql.Data.MySqlClient.MySqlCommand cmd = this.connection.CreateCommand();
 
                 // Requête SQL
-                cmd.CommandText = "DELETE ALL ROWS FROM Vocabulaire;";
-                         
-                       
+                cmd.CommandText = "DELETE ALL ROWS FROM Vocabulaire;SET  @num := 0;UPDATE Vocabulaire SET id = @num := (@num+1);ALTER TABLE Vocabulaire AUTO_INCREMENT =1;";
+                     
 
                 // Exécution de la commande SQL
                 cmd.ExecuteNonQuery();
@@ -351,6 +370,96 @@ namespace Worter2
 
             }
         }
+        public List<Words> ReadFromDb()
+        {
+            this.connection.Open();
+
+
+            // Création d'une commande SQL en fonction de l'objet connection
+            MySql.Data.MySqlClient.MySqlCommand cmd = this.connection.CreateCommand();
+
+            // Requête SQL
+            cmd.CommandText = "SELECT English,Deutsch,Francais FROM Langues.Vocabulaire;";
+            MySql.Data.MySqlClient.MySqlDataReader dataReader = cmd.ExecuteReader();
+
+            //cmd.Parameters.AddWithValue("@id", word.English);
+            //cmd.Parameters.AddWithValue("@en", word.English);
+            //cmd.Parameters.AddWithValue("@de", word.Deutsch);
+            //cmd.Parameters.AddWithValue("@fr", word.Francais);
+
+            // Exécution de la commande SQL
+            //cmd.ExecuteNonQuery();
+            //Read the data and store them in the list
+            //Words words = new Words();
+            
+            while (dataReader.Read())
+            {
+                reads.Add(new Words
+                {
+                    English = dataReader["English"].ToString(),
+                    Deutsch = dataReader["Deutsch"].ToString(),
+                    Francais = dataReader["Francais"].ToString()
+                });
+                //Console.WriteLine(dataReader["English"].ToString());
+            }
+            return reads;
+        }
+        public void AddMessage(string Message)
+        {
+            try
+            {
+                // Ouverture de la connexion SQL
+                if (countcon == false && countend == true)
+                {
+                    Console.WriteLine("\n---Connection à la base de données---");
+                    countcon = true;
+                }
+
+                this.connection.Open();
+
+                // Création d'une commande SQL en fonction de l'objet connection
+                MySql.Data.MySqlClient.MySqlCommand cmd = this.connection.CreateCommand();
+
+                // Requête SQL
+                cmd.CommandText = "INSERT INTO Messages (Message) VALUES (@Message)";
+
+                // utilisation de l'objet contact passé en paramètre
+                //cmd.Parameters.AddWithValue("@type", type.type);
+                //cmd.Parameters.AddWithValue("@Message", Message);
+
+                //Si word est défini dans les parametres
+                if (!Message.Equals(null))
+                {
+                    cmd.Parameters.AddWithValue("@Message", Message);
+                }
+                else
+                {
+                    Console.WriteLine("Message est vide ! ");
+                }
+
+                // Exécution de la commande SQL
+                cmd.ExecuteNonQuery();
+
+                // Fermeture de la connexion
+                if (countend == false)
+                {
+                    Console.WriteLine("\n---Message Ajoutée à la base---");
+                    countcon = false;
+                    countend = true;
+                }
+                this.connection.Close();
+            }
+            catch (Exception ex)
+            {
+                // Gestion des erreurs :
+                // Possibilité de créer un Logger pour les exceptions SQL reçus
+                // Possibilité de créer une méthode avec un booléan en retour pour savoir si le contact à été ajouté correctement.
+                Console.WriteLine("\n---Base non connecté !---" + ex.Message);
+
+
+            }
+        }
     }
+    
     
 }

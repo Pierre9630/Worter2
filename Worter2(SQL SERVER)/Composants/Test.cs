@@ -1,30 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Worter2_SQL_SERVER_;
 
-namespace Worter2
+namespace Worter2_SQL_SERVER_
+
 {
-    class Test: Prog
+    class Test
     {
         public void TestProgram()
         {
             Console.WriteLine("Choix 1 : Ajout dans la base à partir de english.txt \n" +
                 "Choix 2 : Ajout de lignes manuellement à la base \n" +
                  "Choix 3 : Parcourir la base actuelle"
-                 ,"Choix 4 : Supprimer la base (à confirmer !)" +
-                 "Choix 5 : Bonus !");
+                 ,"Choix 4 : Supprimer la base(à confirmer !)");
             int choice = 0;
-            choice = int.Parse(Console.ReadLine());
-            Test:
             switch (choice)
             {
                 case 1:
-                    Prog prg = new Prog();
-                    prg.AddWords();
+                    Program prg = new Program();
                     /* Remplir avec le programme original
                      * 
                      * */
-                    break;
+                    return;
                     //break;
                 case 2:
                     Console.WriteLine("Combien de lignes voulez-vous rajouter ?");
@@ -60,40 +58,21 @@ namespace Worter2
                     break;
                 case 3:
                     Console.WriteLine("Base de données actuelle");
-
                     
                     break;
                 case 4:
                     Console.WriteLine("Ceci supprimera toute la base ! Etes vous sûr de faire cela?");
                     Console.WriteLine("Mot de  passe root :");
-                    System.Security.SecureString bdd = Getpasswd.GetPassword();                   
-                    Database db = new Database();
-                    db.CloseConnexion();
-                    System.Threading.Thread.Sleep(2000);
-                    db.InitConnexion(bdd);
+                    DataAccess db = new DataAccess();
+                    db.Connexion();
                     db.DeleteRows();
-                    Console.WriteLine("test");
-                    System.Threading.Thread.Sleep(10000);
-                    break;                
-                case 5:
-                    Console.WriteLine("PacMan");
-
                     break;
                 default:
                     Console.WriteLine(" -----------------");
-                    goto Test;                    
+                    break;
             }
             //System.Threading.Thread.Sleep()
 
-        }
-
-        public void TestUnitaires()
-        {
-            Database db = new Database();
-            Words word = new Words();
-            db.AddWords(word);
-            db.ReadFromDb();
-            db.CloseConnexion();
         }
     }
 }
