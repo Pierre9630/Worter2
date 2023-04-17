@@ -20,7 +20,7 @@ namespace Worter2
             {
                 case 1:
                     Prog prg = new Prog();
-                    prg.AddWords();
+                    prg.addWords();
                     /* Remplir avec le programme original
                      * 
                      * */
@@ -68,10 +68,10 @@ namespace Worter2
                     Console.WriteLine("Mot de  passe root :");
                     System.Security.SecureString bdd = Getpasswd.GetPassword();                   
                     Database db = new Database();
-                    db.CloseConnexion();
+                    db.closeConnexion();
                     System.Threading.Thread.Sleep(2000);
                     db.InitConnexion(bdd);
-                    db.DeleteRows();
+                    db.deleteRows();
                     Console.WriteLine("test");
                     System.Threading.Thread.Sleep(10000);
                     break;                
@@ -91,9 +91,9 @@ namespace Worter2
         {
             Database db = new Database();
             Words word = new Words();
-            db.AddWords(word);
-            db.ReadFromDb();
-            db.CloseConnexion();
+            db.addWords(word);
+            db.readFromDb();
+            db.closeConnexion();
         }
     }
 }

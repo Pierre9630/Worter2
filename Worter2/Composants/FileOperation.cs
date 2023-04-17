@@ -88,7 +88,7 @@ namespace Worter2
             Database db = new Database();
             foreach (var word in words)
             {
-                db.AddWords(word);
+                db.addWords(word);
             }
         }
     }

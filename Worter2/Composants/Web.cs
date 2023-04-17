@@ -14,7 +14,7 @@ namespace Worter2
         {
              
             var prs = new ProcessStartInfo("MicrosoftEdge.exe");
-            prs.Arguments = "192.168.1.52";
+            prs.Arguments = "192.168.1.52:8080";
             Process.Start(prs);
             //_ = Process.GetProcesses("MicrosoftEdge.exe");
 

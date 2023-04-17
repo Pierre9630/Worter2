@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using System.Text;
 using System;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Drawing;
 
 namespace Worter2_SQL_SERVER_
 {
@@ -15,7 +16,7 @@ namespace Worter2_SQL_SERVER_
     {
         //private SqlConnection con;
         readonly string conString = "Data Source=DESKTOP-CVBU275\\SQLEXPRESS;Initial Catalog=Worter2;Integrated Security=True;Pooling=False";
-        
+
         public void DataAcess()
         {
             this.Connexion();
@@ -29,7 +30,7 @@ namespace Worter2_SQL_SERVER_
                 Console.WriteLine("Init");
                 return con;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }
@@ -61,7 +62,7 @@ namespace Worter2_SQL_SERVER_
                     while (reader.Read())
                     {
                         ++prevcount;
-                    }                                       
+                    }
                 }
                 else
                 {
@@ -71,8 +72,8 @@ namespace Worter2_SQL_SERVER_
                 da.Close(con);
             }
             return prevcount;
-            
-            
+
+
         }
         public void AddWords(Words word)
         {
@@ -80,25 +81,25 @@ namespace Worter2_SQL_SERVER_
             //string connString = "your connection string";
             //using (SqlConnection conn = new SqlConnection(connString))
             //{
-                using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = new SqlCommand())
+            {
+                //comm.Connection = conn;
+                comm.CommandText = cmdString;
+                comm.Parameters.AddWithValue("@en", word.English);
+                comm.Parameters.AddWithValue("@de", word.Deutsch);
+                comm.Parameters.AddWithValue("@fr", word.Francais);
+                try
                 {
-                    //comm.Connection = conn;
-                    comm.CommandText = cmdString;
-                    comm.Parameters.AddWithValue("@en", word.English);
-                    comm.Parameters.AddWithValue("@de", word.Deutsch);
-                    comm.Parameters.AddWithValue("@fr", word.Francais);
-                    try
-                    {
-                        //conn.Open();
-                        comm.ExecuteNonQuery();
-                    }
-        catch(SqlException e)
-                    {
-                        // do something with the exception
-                        // don't hide it
-                    }
+                    //conn.Open();
+                    comm.ExecuteNonQuery();
                 }
-         // }
+                catch (SqlException e)
+                {
+                    // do something with the exception
+                    // don't hide it
+                }
+            }
+            // }
             //string cmdString = "INSERT INTO Vocabulaire (English, Deutsch, Francais ) VALUES (@en, @de, @fr)";
             //using (SqlCommand comm = new SqlCommand())
             //{
@@ -134,9 +135,34 @@ namespace Worter2_SQL_SERVER_
                     // don't hide it
                 }
             }
-        public void DeleteRows()
+        }
+        public void DeleteRows(String word, Type
+            type = null)
         {
-
+            Console.WriteLine("test delete");
+            //string cmdString = "INSERT INTO [dbo].[Table] (English, Deutsch, Francais ) VALUES (@en, @de, @fr)";
+            string cmdString = "DELETE FROM [dbo].[Vocabulaire] WHERE Type = @type OR English = @word OR Francais = @word OR Deutsch = @word ;";
+            //string connString = "your connection string";
+            //using (SqlConnection conn = new SqlConnection(connString))
+            //{
+            using (SqlCommand comm = new SqlCommand())
+            {
+                //comm.Connection = conn;
+                comm.CommandText = cmdString;
+                comm.Parameters.AddWithValue("@type", type.type);
+                comm.Parameters.AddWithValue("@word", word);
+                //comm.Parameters.AddWithValue("@fr", word.Francais);
+                try
+                {
+                    //conn.Open();
+                    comm.ExecuteNonQuery();
+                }
+                catch (SqlException e)
+                {
+                    // do something with the exception
+                    // don't hide it
+                }
+            }
         }
         //public List<Words> GetPeople(string English,string Deutsch,string Francais)
         //{
@@ -161,6 +187,7 @@ namespace Worter2_SQL_SERVER_
 
         //    }
         //}
+
     }
 }
 //using System;

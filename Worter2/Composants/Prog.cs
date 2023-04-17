@@ -9,7 +9,7 @@ namespace Worter2
 {
     internal class Prog
     {
-        public void AddWords()
+        public void addWords()
         {
 
         }

@@ -80,9 +80,9 @@ namespace Worter2
             
             List<Words> compare = new List<Words>();
 
-            db.HasRows(compare);
+            db.hasRows(compare);
 
-            int count = db.CountID();
+            int count = db.countID();
 
             // Nous pouvons utiliser ReadToEnd qui lira de notre position courante jusqu'à la fin du fichier puis nous
             // retourne une chaîne de caractères.
@@ -219,7 +219,7 @@ namespace Worter2
 
             foreach (var word in words)
             {
-                db.AddWords(word);
+                db.addWords(word);
             }
 
             foreach (var type in types)
@@ -227,7 +227,7 @@ namespace Worter2
                 //Incrémenter le nombre d'entrées                
                 count++;
                 //Console.WriteLine(count.ToString());
-                db.AddType(type, count);
+                db.addType(type, count);
             }
 
             //for (int i = 0; i < resultLines.Length; i++)

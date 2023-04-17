@@ -31,7 +31,7 @@ namespace Worter2
                 {
                     
                     
-                    Console.WriteLine("TEST " + mpsroot.GetString());
+                    //Console.WriteLine("TEST " + mpsroot.GetString());
                     string connectionString = "Server=192.168.1.42;Database=Langues;Uid=root;Pwd=" + mpsroot.GetString() + ";";
                     this.connection = new MySqlConnection(connectionString);
                 }
@@ -44,7 +44,7 @@ namespace Worter2
             }
         }
 
-        public void CloseConnexion()
+        public void closeConnexion()
         {
             this.connection.Close();
         }
@@ -53,7 +53,7 @@ namespace Worter2
         bool countcon = false;
         bool countend = false;
 
-        public bool ReadWords(List<Words> query, List<Words> reads, List<Type> readstype, List<ID> id)
+        public bool readwords(List<Words> query, List<Words> reads, List<Type> readstype, List<ID> id)
         {
             try
             {
@@ -119,7 +119,7 @@ namespace Worter2
         }
 
         // Méthode pour ajouter un contact
-        public int CountID()
+        public int countID()
         {
             int prevcount = 0;
             try
@@ -158,7 +158,7 @@ namespace Worter2
             }
             return 0;
         }
-        public bool HasRows(List<Words> words)
+        public bool hasRows(List<Words> words)
         {
             
             using (connection)
@@ -199,7 +199,7 @@ namespace Worter2
                 return false;
             }
         }
-        public void AddWords(Words word)
+        public void addWords(Words word)
         {
             
             try
@@ -246,7 +246,7 @@ namespace Worter2
                 
             }          
         }
-        public void AddType(Type type,int count)
+        public void addType(Type type,int count)
         {
             try
             {
@@ -274,7 +274,7 @@ namespace Worter2
                 Console.WriteLine("\n---Base non connecté !---" + ex.Message);
             }
         }
-        public void AddPhrase(Phrases Phrase, [Optional] Words Word, [Optional] Words Word2, [Optional] Words Word3)
+        public void addPhrase(Phrases Phrase, [Optional] Words Word, [Optional] Words Word2, [Optional] Words Word3)
         {
             try
             {
@@ -328,7 +328,7 @@ namespace Worter2
 
             }
         }
-        public void DeleteRows()
+        public void deleteRows()
         {
             try
             {
@@ -370,7 +370,7 @@ namespace Worter2
 
             }
         }
-        public List<Words> ReadFromDb()
+        public List<Words> readFromDb()
         {
             this.connection.Open();
 
